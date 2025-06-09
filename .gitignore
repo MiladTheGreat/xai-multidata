@@ -1,0 +1,40 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.ipynb_checkpoints
+
+# VSCode, Jupyter
+.vscode/
+.settings/
+*.swp
+*.swo
+.DS_Store
+
+# Dataset & output
+data/
+outputs/
+checkpoints/
+logs/
+*.pth
+*.pt
+*.h5
+*.npz
+*.csv
+
+# System files
+*.tmp
+*.bak
+
+# Environment
+env/
+venv/
+.venv/
+.idea/
+.env
+*.env
+
+# Cache
+*.cache/
+.cache/
+*.egg-info/

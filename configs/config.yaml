@@ -8,27 +8,26 @@ dataset:
   num_workers: 4
 
 model:
-  name: 'mlp'
-  input_size: 150528
+  name: 'swin_t'
   num_classes: 200
+  params:
+    pretrained: True
+    freeze: False
 
 
 train:
-  epochs: 10
+  epochs: 30
   seed: 42
 
 
 optim:
- name: 'adam'
- lr: 0.001
- weight_decay: 0.0
+ lr: 0.0005
+
 
 
 checkpoint:
-  dir: './checkpoints'
-  save_best_only: True
+  dir: ./checkpoints
 
 
 output:
-  verbose: 1
-  log_dir: './logs'
+  dir: outputs/
