@@ -1,0 +1,9 @@
+dataset:
+  name: cub
+  root: ./data/CUB_200_2011
+  split: train
+  params:
+    img_size: 224
+  batch_size: 32
+  num_workers: 4
+  
