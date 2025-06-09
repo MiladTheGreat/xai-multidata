@@ -6,4 +6,29 @@ dataset:
     img_size: 224
   batch_size: 32
   num_workers: 4
-  
+
+model:
+  name: 'mlp'
+  input_size: 150528
+  num_classes: 200
+
+
+train:
+  epochs: 10
+  seed: 42
+
+
+optim:
+ name: 'adam'
+ lr: 0.001
+ weight_decay: 0.0
+
+
+checkpoint:
+  dir: './checkpoints'
+  save_best_only: True
+
+
+output:
+  verbose: 1
+  log_dir: './logs'
