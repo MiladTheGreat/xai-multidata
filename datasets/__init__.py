@@ -1,5 +1,7 @@
-def get_dataset(name,root,split='train',transform=None,**kwargs):
+def get_dataset(name,config,split='train',transform=None,**kwargs):
     name = name.lower()
+    root = config['root']
+    
     if name =='cub':
         from .cub200 import CUB200Dataset
         return CUB200Dataset(root,split,transform)

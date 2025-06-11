@@ -7,50 +7,53 @@ from utils.dataloader import get_dataloaders
 from models.model import get_model
 from utils.train_utils import train_loop
 
+def main():
+    with open('configs/config.yaml','r') as f:
+        cfg = yaml.safe_load(f)
 
-with open('configs/config.yaml','r') as f:
-    cfg = yaml.safe_load(f)
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    train_transform , test_transform = get_transforms()
+    dataset_names= [dataset for dataset in cfg['datasets']]
+    model_names = [model for model in cfg['models']]
+    ds_cfg = cfg['datasets']
+    model_cfg = cfg['models']
+    for dataset_name in dataset_names:
 
-datasets_cfg = cfg['dataset']
-models_cfg = cfg['model']
-train_cfg = cfg['train']
-optim_cfg = cfg['optim']
-checkpoint_cfg = cfg['checkpoint']
-output_cfg = cfg['output']
+        train_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='train',transform=train_transform)
+        test_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='test',transform=test_transform)
+        dataset_dict = {'train':train_dataset,'test':test_dataset}
+        print(f"Train dataset size: {len(dataset_dict['train'])}, Test dataset size: {len(dataset_dict['test'])}")
 
+        dataloaders = get_dataloaders(dataset_dict,ds_cfg[dataset_name],shuffle_train=True)
 
-train_transform , test_transform = get_transforms()
-device = 'cuda' if torch.cuda.is_available() else 'cpu'
-
-train_dataset = get_dataset(datasets_cfg['name'],root=datasets_cfg['root'],split='train',transform=train_transform)
-test_dataset = get_dataset(datasets_cfg['name'],root=datasets_cfg['root'],split='test',transform=test_transform)
-dataset_dict = {'train':train_dataset,'test':test_dataset}
-print(f"Train dataset size: {len(dataset_dict['train'])}, Test dataset size: {len(dataset_dict['test'])}")
-
-dataloaders = get_dataloaders(dataset_dict,models_cfg,shuffle_train=True)
-
+    
 
 
-params = models_cfg.get('params',{})
-model = get_model(models_cfg).to(device)
-print(type(model))
-optimizer = torch.optim.Adam(model.parameters(),optim_cfg['lr'])
-loss_fn = torch.nn.CrossEntropyLoss()
+        for model_name in model_names:
+            print(f"Training Model: {model_name}")
+            params = model_cfg[model_name].get('params',{})
+            model = get_model(model_name,model_cfg[model_name],num_classes= ds_cfg[dataset_name]['params']['num_classes']).to(device)
+            optimizer = torch.optim.Adam(model.parameters(),cfg['optim']['lr'])
+            loss_fn = torch.nn.CrossEntropyLoss()
 
 
-trained_models = os.listdir('checkpoints')
+            trained_models = os.listdir('checkpoints')
 
 
-if f'{models_cfg['name']}.pth' not in trained_models:
+            if f'{model_name}_{dataset_name}.pth' not in trained_models or model_cfg[model_name].get('force_retrain', False):
 
-    train_loop(model,
-               models_cfg['name'],
-               dataloaders['train'],
-               dataloaders['test'],
-               optimizer,
-               loss_fn,device,
-               train_cfg['epoch'],
-               folder=checkpoint_cfg['dir'],
-               patience=train_cfg['patience'])
+                train_loop(model,
+                        model_name,
+                        dataloaders['train'],
+                        dataloaders['test'],
+                        optimizer,
+                        loss_fn,
+                        device,
+                        dataset_name,
+                        cfg)
+            else:
+                print(f'{model_name} is already trained on {dataset_name} dataset, for re-training change the value of force_retrain in config to True.')
 
 
+if __name__ == '__main__':
+    main()

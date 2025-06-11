@@ -31,4 +31,4 @@ class CUB200Dataset(BaseDataset):
         img = Image.open(path).convert("RGB")
         if self.transform:
             img = self.transform(img)
-        return img,label
+        return img,label,path

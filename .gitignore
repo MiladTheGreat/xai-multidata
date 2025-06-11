@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *.so
 *.ipynb_checkpoints
+*.ipynb
 
 # VSCode, Jupyter
 .vscode/
