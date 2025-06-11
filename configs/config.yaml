@@ -1,35 +1,45 @@
-dataset:
-  name: cub
-  root: ./data/CUB_200_2011
-  split: train
-  params:
-    img_size: 224
-  batch_size: 32
-  num_workers: 4
-  pin_memory: True
-
-model:
-  name: 'swin_t'
-  num_classes: 200
-  params:
-    pretrained: True
-    freeze: False
+#datasets
+datasets:
+  cub: 
+    root: ./data/CUB_200_2011
+    split: train
+    params:
+      img_size: 224
+      batch_size: 32
+      num_workers: 4
+      pin_memory: True
+      num_classes: 200
 
 
+#models
+models:
+  swin_t:
+    force_retrain: False
+    params:
+      pretrained: True
+      freeze: False
+
+  efficientnet_v2_s: 
+    force_retrain: True
+    params:
+      pretrained: True
+      freeze: False
+
+
+#train_options
 train:
-  epochs: 30
+  epochs: 2
   patience: 7
-  seed: 42
 
-
+#optimizer
 optim:
- lr: 0.0005
+ lr: 0.001
 
 
-
+#checkpoints
 checkpoint:
   dir: ./checkpoints
 
-
+#logs
 output:
   dir: outputs/
