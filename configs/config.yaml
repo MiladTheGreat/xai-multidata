@@ -6,6 +6,7 @@ dataset:
     img_size: 224
   batch_size: 32
   num_workers: 4
+  pin_memory: True
 
 model:
   name: 'swin_t'
@@ -17,6 +18,7 @@ model:
 
 train:
   epochs: 30
+  patience: 7
   seed: 42
 
 

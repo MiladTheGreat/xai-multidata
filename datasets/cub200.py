@@ -16,7 +16,7 @@ class CUB200Dataset(BaseDataset):
         df = pd.merge(df,train_test_split,on='img_id')
         if self.split.lower() == 'train':
             self.df = df[df['train']==1].drop('train',axis=1)
-        elif self.split.lower() == 'train':
+        elif self.split.lower() == 'test':
             self.df = df[df['train']==0].drop('train',axis=1)
         else:
             self.df= df 
