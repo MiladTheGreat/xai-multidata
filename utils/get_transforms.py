@@ -7,7 +7,7 @@ def get_transforms():
         T.RandomRotation(15),
         T.ToTensor(),
         T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
-        T.RandomErasing(0.5,scale=(0.02,0.1),ratio=(0.3,3.3),value=0,inplace=False)
+        # T.RandomErasing(0.5,scale=(0.02,0.1),ratio=(0.3,3.3),value=0,inplace=False)
     ])
 
     test_transforms = T.Compose([

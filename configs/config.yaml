@@ -16,25 +16,23 @@ models:
   swin_t:
     force_retrain: False
     params:
+      optim: adamw
       pretrained: True
-      freeze: False
+      freeze: True
+      lr: 0.0005
 
   efficientnet_v2_s: 
-    force_retrain: True
+    force_retrain: False
     params:
+      optim: adam
       pretrained: True
       freeze: False
-
+      lr: 0.0005
 
 #train_options
 train:
-  epochs: 2
+  epochs: 1
   patience: 7
-
-#optimizer
-optim:
- lr: 0.001
-
 
 #checkpoints
 checkpoint:

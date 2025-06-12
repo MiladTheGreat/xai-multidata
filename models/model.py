@@ -9,7 +9,7 @@ def get_model(model_name,cfg,num_classes):
     model_name = model_name.lower()
 
     if model_name in ['swin_t','swin_tiny']:
-        net = models.swin_t(weights=( models.Swin_T_Weights.IMAGENET1K_V1 if params.get('pretrained',True) else None))
+        net = models.swin_t(weights=( models.Swin_T_Weights.DEFAULT if params.get('pretrained',True) else None))
         net.head = nn.Linear(net.head.in_features,num_classes)
         if params.get('freeze',False):
             for name , param in net.named_parameters():
@@ -24,6 +24,10 @@ def get_model(model_name,cfg,num_classes):
             for name , param in net.named_parameters():
                 if 'classifier.1' not in name:
                     param.requires_grad = False
+        else:
+            for name , param in net.named_parameters():
+                param.requires_grad = True
+
         return net
     
     elif model_name.startswith('efficientnet_'):

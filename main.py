@@ -5,9 +5,11 @@ from datasets import get_dataset
 from utils.get_transforms import get_transforms
 from utils.dataloader import get_dataloaders
 from models.model import get_model
-from utils.train_utils import train_loop
-
+from utils.train_utils import train_loop,save_predictions
+from utils.get_optim import get_optim
+from utils.ensemble_vote import ensemble
 def main():
+
     with open('configs/config.yaml','r') as f:
         cfg = yaml.safe_load(f)
 
@@ -17,12 +19,15 @@ def main():
     model_names = [model for model in cfg['models']]
     ds_cfg = cfg['datasets']
     model_cfg = cfg['models']
-    for dataset_name in dataset_names:
 
+
+    for dataset_name in dataset_names:
+        ds_params = ds_cfg[dataset_name]['params']
         train_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='train',transform=train_transform)
         test_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='test',transform=test_transform)
         dataset_dict = {'train':train_dataset,'test':test_dataset}
         print(f"Train dataset size: {len(dataset_dict['train'])}, Test dataset size: {len(dataset_dict['test'])}")
+
 
         dataloaders = get_dataloaders(dataset_dict,ds_cfg[dataset_name],shuffle_train=True)
 
@@ -30,14 +35,14 @@ def main():
 
 
         for model_name in model_names:
-            print(f"Training Model: {model_name}")
-            params = model_cfg[model_name].get('params',{})
-            model = get_model(model_name,model_cfg[model_name],num_classes= ds_cfg[dataset_name]['params']['num_classes']).to(device)
-            optimizer = torch.optim.Adam(model.parameters(),cfg['optim']['lr'])
+            print(f"Training Model: {model_name} on {dataset_name} dataset.")
+            model_params = model_cfg[model_name]['params'] or {}
+            model = get_model(model_name,model_cfg[model_name],num_classes= ds_params['num_classes']).to(device)
+            optimizer = get_optim(model_params['optim'])(model.parameters(),model_params['lr'])
             loss_fn = torch.nn.CrossEntropyLoss()
-
-
-            trained_models = os.listdir('checkpoints')
+            models_path =os.path.join('outputs',f'{model_name}_{dataset_name}','output')
+            os.makedirs(models_path,exist_ok=True)
+            trained_models = os.listdir(models_path)
 
 
             if f'{model_name}_{dataset_name}.pth' not in trained_models or model_cfg[model_name].get('force_retrain', False):
@@ -54,6 +59,9 @@ def main():
             else:
                 print(f'{model_name} is already trained on {dataset_name} dataset, for re-training change the value of force_retrain in config to True.')
 
+        ensemble(dataset_name,ds_params['num_classes'])
+
 
 if __name__ == '__main__':
     main()
+    
