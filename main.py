@@ -4,49 +4,52 @@ import torch
 from datasets import get_dataset
 from utils.get_transforms import get_transforms
 from utils.dataloader import get_dataloaders
-from models.model import get_model
-from utils.train_utils import train_loop,save_predictions
+from models.model import get_models
+from utils.train_utils import train_loop
 from utils.get_optim import get_optim
 from utils.ensemble_vote import ensemble
 def main():
 
     with open('configs/config.yaml','r') as f:
         cfg = yaml.safe_load(f)
-
+    
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    train_transform , test_transform = get_transforms()
     dataset_names= [dataset for dataset in cfg['datasets']]
     model_names = [model for model in cfg['models']]
     ds_cfg = cfg['datasets']
     model_cfg = cfg['models']
 
 
-    for dataset_name in dataset_names:
-        ds_params = ds_cfg[dataset_name]['params']
-        train_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='train',transform=train_transform)
-        test_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='test',transform=test_transform)
-        dataset_dict = {'train':train_dataset,'test':test_dataset}
-        print(f"Train dataset size: {len(dataset_dict['train'])}, Test dataset size: {len(dataset_dict['test'])}")
+    for model_name in model_names:
 
+        for dataset_name in dataset_names:
+            
 
-        dataloaders = get_dataloaders(dataset_dict,ds_cfg[dataset_name],shuffle_train=True)
-
-    
-
-
-        for model_name in model_names:
-            print(f"Training Model: {model_name} on {dataset_name} dataset.")
-            model_params = model_cfg[model_name]['params'] or {}
-            model = get_model(model_name,model_cfg[model_name],num_classes= ds_params['num_classes']).to(device)
-            optimizer = get_optim(model_params['optim'])(model.parameters(),model_params['lr'])
-            loss_fn = torch.nn.CrossEntropyLoss()
             models_path =os.path.join('outputs',f'{model_name}_{dataset_name}','output')
             os.makedirs(models_path,exist_ok=True)
+
+            model_params = model_cfg[model_name]['params'] or {}
+            ds_params = ds_cfg[dataset_name]['params']
+            train_transform , test_transform = get_transforms(model_params.get('img_size',224))
+            
+            train_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='train',transform=train_transform)
+            test_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='test',transform=test_transform)
+            dataset_dict = {'train':train_dataset,'test':test_dataset}
+            print(f"Train dataset size: {len(dataset_dict['train'])}, Test dataset size: {len(dataset_dict['test'])}")
+            dataloaders = get_dataloaders(dataset_dict,ds_cfg[dataset_name],shuffle_train=True)
+            
+            
+            
+
             trained_models = os.listdir(models_path)
-
-
             if f'{model_name}_{dataset_name}.pth' not in trained_models or model_cfg[model_name].get('force_retrain', False):
-
+                
+                print(f"Training Model: {model_name} on {dataset_name} dataset.")
+                
+                model = get_models(model_name,ds_cfg['num_classes'],model_params)
+                optimizer = get_optim(model_params['optim'])(model.parameters(),model_params['lr'])
+                loss_fn = torch.nn.CrossEntropyLoss()
+                
                 train_loop(model,
                         model_name,
                         dataloaders['train'],
@@ -57,9 +60,9 @@ def main():
                         dataset_name,
                         cfg)
             else:
-                print(f'{model_name} is already trained on {dataset_name} dataset, for re-training change the value of force_retrain in config to True.')
+                    print(f'{model_name} is already trained on {dataset_name} dataset, for re-training change the value of force_retrain in config to True.')
 
-        ensemble(dataset_name,ds_params['num_classes'])
+            ensemble(dataset_name,ds_params['num_classes'])
 
 
 if __name__ == '__main__':
