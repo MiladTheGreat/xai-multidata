@@ -50,8 +50,8 @@ def main():
                 
                 model = get_models(model_name,ds_params['num_classes'],model_params).to(device)
                 optimizer = get_optim(model,model_name,optim_config,model_params)
-                print(type(optimizer))
-                loss_fn = torch.nn.CrossEntropyLoss()
+                label_smoothing = cfg['regularization'].get('label_smoothing',0.1)
+                loss_fn = torch.nn.CrossEntropyLoss(label_smoothing=label_smoothing)
                 
                 train_loop(model,
                         model_name,
