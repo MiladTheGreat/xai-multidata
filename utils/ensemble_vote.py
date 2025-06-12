@@ -4,7 +4,7 @@ import pandas as pd
 from collections import Counter
 import numpy as np
 
-def ensemble(dataset_name,num_classes):
+def ensemble(dataset_name,num_classes,output_path):
 
     csvs =[]
     vote_dict = {}
@@ -13,10 +13,10 @@ def ensemble(dataset_name,num_classes):
     percentage_dict = {}
     hard_results = []
     soft_results = []
-    folders=os.listdir('outputs')
+    folders=os.listdir(output_path)
     for folder in folders:
-        if os.path.isdir(f"outputs/{folder}") :
-            csvs.append(glob.glob(f"outputs/{folder}/*_{dataset_name}_dataset.parquet").pop())
+        if glob.glob(f"{output_path}/{folder}/*_{dataset_name}_dataset.parquet"):
+            csvs.append(glob.glob(f"{output_path}/{folder}/*_{dataset_name}_dataset.parquet").pop())
     for csv in csvs:
         df = pd.read_parquet(csv,engine='pyarrow')
         for i,row in df.iterrows():
@@ -49,5 +49,5 @@ def ensemble(dataset_name,num_classes):
     soft_acc = len(soft_df[soft_df['label']==soft_df['soft_pred']])/len(soft_df) * 100
     hard_acc = len(hard_df[hard_df['label']==hard_df['hard_pred']])/len(hard_df) * 100
 
-    pd.merge(hard_df,soft_df,on=['image_path','label']).to_csv(f"outputs/ensemble_{dataset_name}.csv", index=False)
-    print(f"hard_enseble:{hard_acc:.2f},soft_ensemble_acc:{soft_acc:.2f},  saved at outputs/ensemble_{dataset_name}.csv")
+    pd.merge(hard_df,soft_df,on=['image_path','label']).to_csv(f"{output_path}/ensemble_{dataset_name}.csv", index=False)
+    print(f"hard_enseble:{hard_acc:.2f},soft_ensemble_acc:{soft_acc:.2f},  saved at {output_path}/ensemble_{dataset_name}.csv")

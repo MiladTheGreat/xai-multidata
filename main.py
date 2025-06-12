@@ -18,14 +18,14 @@ def main():
     model_names = [model for model in cfg['models']]
     ds_cfg = cfg['datasets']
     model_cfg = cfg['models']
-
+    output_path = cfg['output']['dir']
 
     for model_name in model_names:
 
         for dataset_name in dataset_names:
             
 
-            models_path =os.path.join('outputs',f'{model_name}_{dataset_name}','output')
+            models_path =os.path.join(output_path,f'{model_name}_{dataset_name}','output')
             os.makedirs(models_path,exist_ok=True)
 
             model_params = model_cfg[model_name].get('params',{})
@@ -65,7 +65,7 @@ def main():
             else:
                     print(f'{model_name} is already trained on {dataset_name} dataset, for re-training change the value of force_retrain in config to True.')
 
-            ensemble(dataset_name,ds_params['num_classes'])
+            ensemble(dataset_name,ds_params['num_classes'],output_path)
 
 
 if __name__ == '__main__':

@@ -13,7 +13,7 @@ datasets:
 
 #models
 models:
-  swin_t:
+  beitv2_base:
     force_retrain: False
     params:
       pretrained: True
@@ -26,7 +26,7 @@ models:
       diff_lr: True
       head_lr_multiplier: 10
 
-  efficientnet_v2_s: 
+  swin_b:
     force_retrain: False
     params:
       pretrained: True
@@ -39,6 +39,31 @@ models:
       diff_lr: True
       head_lr_multiplier: 10
 
+  convnext_s:
+    force_retrain: False
+    params:
+      pretrained: True
+      freeze: False
+      img_size: 224
+    optim:
+      name: adamw
+      lr: 0.00002
+      weight_decay: 0.05
+      diff_lr: True
+      head_lr_multiplier: 10
+
+  deit3_base_patch16_224:
+    force_retrain: False
+    params:
+      pretrained: True
+      freeze: False
+      img_size: 224
+    optim:
+      name: adamw
+      lr: 0.00002
+      weight_decay: 0.05
+      diff_lr: True
+      head_lr_multiplier: 10
 augmentation:
   use_trivial_augment: True 
   mixup_cutmix:
@@ -55,7 +80,7 @@ regularization:
 
 #train_options
 train:
-  epochs: 1
+  epochs: 50
   patience: 7
 
 #checkpoints
@@ -64,4 +89,4 @@ checkpoint:
 
 #logs
 output:
-  dir: outputs/
+  dir: outputs

@@ -108,8 +108,15 @@ def get_models(model_name:str,num_classes:int,params:dict):
             in_features = original_classifier.in_features
 
         print(f'original classifier for {model_name}, in_features:{in_features}')
-        new_classifirer = nn.Linear(in_features,num_classes)
-        setattr(net,head_name,new_classifirer)
+        if isinstance(original_classifier, nn.Sequential):
+            layers = list(original_classifier.children())[:-1]
+            layers.append(nn.Linear(in_features, num_classes))
+            new_classifier = nn.Sequential(*layers)
+
+        else:
+            new_classifier = nn.Linear(in_features,num_classes)
+            
+        setattr(net,head_name,new_classifier)
         print(f'replaced original classifier. new outupt {num_classes}.')
     except AttributeError:
         raise AttributeError(f'model_does not have attribute named: {head_name}.')
