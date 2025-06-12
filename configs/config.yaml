@@ -16,19 +16,29 @@ models:
   swin_t:
     force_retrain: False
     params:
-      optim: adamw
       pretrained: True
-      freeze: True
-      lr: 0.0005
+      freeze: False
+      img_size: 224
+    optim:
+      name: adamw
+      lr: 0.00002
+      weight_decay: 0.05
+      diff_lr: True
+      head_lr_multiplier: 10
 
   efficientnet_v2_s: 
     force_retrain: False
     params:
-      optim: adam
       pretrained: True
       freeze: False
-      lr: 0.0005
-
+      img_size: 224
+    optim:
+      name: adamw
+      lr: 0.00002
+      weight_decay: 0.05
+      diff_lr: True
+      head_lr_multiplier: 10
+      
 #train_options
 train:
   epochs: 1

@@ -3,7 +3,7 @@ import os
 from tqdm import tqdm
 import torch.nn.functional as F
 import pandas as pd
-
+from utils.get_scheduler import get_scheduler
 def train(model,dataloader,optimizer,loss_fn,device):
     model.train()
     total_loss = 0
@@ -112,9 +112,10 @@ def train_loop(model,model_name,trainloader,testloader,optimizer,loss_fn,device,
     model_name = f'{model_name}_{dataset_name}'
     log_path = os.path.join(log_path,model_name)
     os.makedirs(log_path,exist_ok=True)
-
+    scheduler = get_scheduler(optimizer,num_epochs,len(trainloader))
     for epoch in range(num_epochs):
         train_loss,train_acc = train(model,trainloader,optimizer,loss_fn,device)
+        scheduler.step()
         test_loss,test_acc = evaluate(model,testloader,loss_fn,device)
         epoch_logger(epoch,train_loss,train_acc,test_loss,test_acc,log_path)
         print(f"epoch:{epoch+1}/{num_epochs}: train loss: {train_loss:.4f} , acuracy: {test_acc:.2f}%")

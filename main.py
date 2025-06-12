@@ -28,8 +28,10 @@ def main():
             models_path =os.path.join('outputs',f'{model_name}_{dataset_name}','output')
             os.makedirs(models_path,exist_ok=True)
 
-            model_params = model_cfg[model_name]['params'] or {}
-            ds_params = ds_cfg[dataset_name]['params']
+            model_params = model_cfg[model_name].get('params',{})
+            optim_config = model_cfg[model_name].get('optim',{})
+            ds_params = ds_cfg[dataset_name].get('params', {})
+
             train_transform , test_transform = get_transforms(model_params.get('img_size',224))
             
             train_dataset = get_dataset(dataset_name,ds_cfg[dataset_name],split='train',transform=train_transform)
@@ -46,8 +48,9 @@ def main():
                 
                 print(f"Training Model: {model_name} on {dataset_name} dataset.")
                 
-                model = get_models(model_name,ds_cfg['num_classes'],model_params)
-                optimizer = get_optim(model_params['optim'])(model.parameters(),model_params['lr'])
+                model = get_models(model_name,ds_params['num_classes'],model_params).to(device)
+                optimizer = get_optim(model,model_name,optim_config,model_params)
+                print(type(optimizer))
                 loss_fn = torch.nn.CrossEntropyLoss()
                 
                 train_loop(model,

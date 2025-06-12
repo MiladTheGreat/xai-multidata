@@ -7,7 +7,7 @@ def get_transforms(input_size = 224):
     
     
     train_transforms = T.Compose([
-        T.Resize((input_size*1.15,input_size*1.15)),
+        T.Resize((int(input_size*1.15),int(input_size*1.15))),
         T.RandomCrop(input_size),
         T.RandomHorizontalFlip(0.5),
         T.RandAugment(num_ops=2,magnitude=9),
